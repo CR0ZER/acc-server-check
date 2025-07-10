@@ -33,26 +33,13 @@ class ACCStatusMonitor:
             # General config
             'timeout': 15,
             'user_agent': 'ACC-Monitor/1.0 (GitHub Actions)',
-            'discord_webhook': self.load_config(),
+            'discord_webhook': os.getenv('DISCORD_WEBHOOK_URL'),
             # Timing API
             'api_update_interval': 5, # minutes
             'api_delay_offset': 30 # seconds - Delay after API update to avoid caching issues
         }
         self.status_file = 'acc_last_status.txt'
         self.metrics_file = 'acc_metrics.json'
-
-
-    def load_config(self) -> str:
-        """
-        Load configuration from a JSON file
-        Returns:
-            discord_webhook_url (str): Discord webhook URL for notifications
-        """
-        with open('config.json') as f:
-            discord_webhook_url = json.load(f).get('discord_webhook_url')
-        if not discord_webhook_url:
-            raise ValueError("Discord webhook URL key (discord_webhook_url) not found in config.json")
-        return discord_webhook_url
 
 
     def fetch_api_data(self) -> Dict[str, Any]:
