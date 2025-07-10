@@ -6,7 +6,7 @@ name: ACC Monitor
 # Scheduler
 on:
     schedule:
-        - cron: '*/5 * * * *'  # Every 5 minutes
+        - cron: '*/15 * * * *'  # Every 15 minutes
     workflow_dispatch:  # Manual trigger
         inputs:
             force_notification:
@@ -76,10 +76,8 @@ jobs:
               if: always()
               with:
                 name: acc-monitor-data-${{ github.run_number }}
-                paths: |
-                  acc_last_status.txt
-                  acc_metrics.json
-                  *.log
+                path: acc_*.txt,acc_*.json
+                if-no-files-found: warn
                 retention-days: 7  # days - Retention period for artifacts
 
             - name: Display summary
