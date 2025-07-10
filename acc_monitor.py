@@ -306,8 +306,7 @@ class ACCStatusMonitor:
                 ],
                 'footer': {
                     'text': 'ACC API Status Monitor • Official Data Source: https://acc-status.jonatan.net/',
-                    "icon_url": "https://cdn.cloudflare.steamstatic.com/steam/apps/805550/header.jpg"
-                    # 'icon_url': 'https://sm.ign.com/ign_fr/cover/a/assetto-co/assetto-corsa-competizione_g2pf.jpg'
+                    'icon_url': 'https://sm.ign.com/ign_fr/cover/a/assetto-co/assetto-corsa-competizione_g2pf.jpg'
                 }
             }]
         }

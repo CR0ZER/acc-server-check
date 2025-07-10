@@ -39,7 +39,7 @@ jobs:
                 pip install -r requirements.txt
 
             - name: Restore cache
-              uses: actions/cache/restore@v3
+              uses: actions/cache/restore@v4
               with:
                 path: |
                   acc_last_status.txt
@@ -63,7 +63,7 @@ jobs:
                 echo "✅ ACC monitoring completed"
 
             - name: Save cache
-              uses: actions/cache/save@v3
+              uses: actions/cache/save@v4
               if: always()
               with:
                 path: |
@@ -72,7 +72,7 @@ jobs:
                 key: acc-status-${{ github.repository }}-${{ github.run_id }}
 
             - name: Upload artifacts
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               if: always()
               with:
                 name: acc-monitor-data-${{ github.run_number }}
