@@ -1,0 +1,104 @@
+# .github/workflows/acc-monitor.yml
+# 🏎️ Workflow automation for ACC monitoring
+
+name: ACC Monitor
+
+# Scheduler
+on:
+    schedule:
+        - cron: '*/5 * * * *'  # Every 5 minutes
+    workflow_dispatch:  # Manual trigger
+        inputs:
+            force_notification:
+                description: 'Force notification even if no significant change'
+                required: false
+                default: false
+                type: boolean
+
+# Job definition
+jobs:
+    monitor-acc-servers:
+        runs-on: ubuntu-latest
+        timeout-minutes: 3  # min - Timeout for the job
+        permissions:
+            contents: read
+            actions: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Python 3.12.1
+              uses: actions/setup-python@v4
+              with:
+                  python-version: '3.12'
+                  cache: 'pip'
+
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+
+            - name: Restore cache
+              uses: actions/cache/restore@v3
+              with:
+                path: |
+                  acc_last_status.txt
+                  acc_metrics.json
+                key: acc-status-${{ github.repository }}
+                restore-keys:
+                  acc-status-
+
+            - name: Run ACC Monitoring
+              env:
+                DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+                FORCE_NOTIFICATION: ${{ github.event.inputs.force_notification }}
+              run: |
+                echo "🏁 Starting ACC Server Monitoring"
+                echo "🔍 API: https://acc-status.jonatan.net/api/v2/acc/status"
+                echo "⏰ Run #${{ github.run_number }}"
+                echo "🕐 UTC Time: $(date -u)"
+                echo ""
+                python acc_monitor.py
+                echo ""
+                echo "✅ ACC monitoring completed"
+
+            - name: Save cache
+              uses: actions/cache/save@v3
+              if: always()
+              with:
+                path: |
+                  acc_last_status.txt
+                  acc_metrics.json
+                key: acc-status-${{ github.repository }}-${{ github.run_id }}
+
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v3
+              if: always()
+              with:
+                name: acc-monitor-data-${{ github.run_number }}
+                paths: |
+                  acc_last_status.txt
+                  acc_metrics.json
+                  *.log
+                retention-days: 7  # days - Retention period for artifacts
+
+            - name: Display summary
+              if: always()
+              run: |
+                echo ""
+                echo "🏎️ === ACC MONITORING SUMMARY ==="
+                echo "📅 UTC Date: $(date -u)"
+                echo "🔄 Run #${{ github.run_number }}"
+                echo "⏱️ Job Status: ${{ job.status }}"
+                
+                if [ -f "acc_last_status.txt" ]; then
+                  echo "📊 Current Status: $(cat acc_last_status.txt)"
+                fi
+                
+                if [ -f "acc_metrics.json" ]; then
+                  entries=$(grep -o '{' acc_metrics.json | wc -l)
+                  echo "📈 History Entries: $entries"
+                fi
+                
+                echo "🔗 Monitored Site: https://acc-status.jonatan.net/"
+                echo "=================================="
