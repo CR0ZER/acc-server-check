@@ -241,4 +241,5 @@ This project uses the [acc-status.jonatan.net](https://acc-status.jonatan.net/) 
 ---
 
 **⭐ If this project helps you monitor your ACC servers, please give it a star!
+
 🏎️ Happy Racing!**
