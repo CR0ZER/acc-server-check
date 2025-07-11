@@ -523,15 +523,20 @@ class ACCStatusMonitor:
                 self.log("First API monitoring")
             elif last_status != current_status:
                 self.log(f"Status change: {last_status} → {current_status}")
-            else:
+            elif current_status in ['DOWN', 'API_ERROR']:
                 self.log(f"Critical status detected: {current_status}")
+            elif os.getenv('FORCE_NOTIFICATION', 'false').lower() == 'true':
+                self.log("Forced notification requested")
             
             # Send Discord notification
-            if self.send_discord_notification(analysis):
-                self.save_status(current_status)
-                self.log("Status saved to file")
-            else:
-                self.log("Failed to send Discord notification, status not saved")
+            notification_sent = self.send_discord_notification(analysis)
+            
+            # Always save status to avoid repeated notifications
+            self.save_status(current_status)
+            self.log("Status saved to file")
+            
+            if not notification_sent:
+                self.log("Warning: Discord notification failed, but status was saved")
         else:
             self.log("No significant status change, skipping notification")
 
