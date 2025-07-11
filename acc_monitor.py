@@ -514,7 +514,7 @@ class ACCStatusMonitor:
         significant_change = (
             last_status is None or  # First run, no last status
             last_status != current_status or  # Status changed
-            current_status in ['DOWN', 'API_ERROR'],  # Critical status
+            current_status in ['DOWN', 'API_ERROR'] or  # Critical status
             os.getenv('FORCE_NOTIFICATION', 'false').lower() == 'true'
         )
 
